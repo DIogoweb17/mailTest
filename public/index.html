@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulaire de contact</title>
+</head>
+<body>
+    <h2>Contactez-nous</h2>
+    <form id="contact-form">
+        <input type="text" id="nom" placeholder="Nom" required>
+        <input type="text" id="prenom" placeholder="Prénom" required>
+        <input type="email" id="email" placeholder="Email" required>
+        <textarea id="message" placeholder="Votre message" required></textarea>
+        <button type="submit">Envoyer</button>
+    </form>
+
+    <script>
+        document.getElementById("contact-form").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            
+            const nom = document.getElementById("nom").value;
+            const prenom = document.getElementById("prenom").value;
+            const email = document.getElementById("email").value;
+            const message = document.getElementById("message").value;
+
+            const response = await fetch("http://localhost:3000/send-email", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ nom, prenom, email, message })
+            });
+
+            const data = await response.json();
+            alert(data.message);
+        });
+    </script>
+</body>
+</html>
