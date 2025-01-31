@@ -31,6 +31,8 @@ router.post('/send-email', async (req, res) => {
     }
 
     try {
+        console.log('Tentative d\'envoi de l\'email...');
+        
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
@@ -47,8 +49,10 @@ router.post('/send-email', async (req, res) => {
             text: `Nom: ${nom}\nPrénom: ${prenom}\nEmail: ${email}\n\nMessage:\n${message}`
         };
 
+        console.log('Envoi de l\'email...');
         await transporter.sendMail(mailOptions);
 
+        console.log('Email envoyé avec succès !');
         res.status(200).json({ success: true, message: 'Email envoyé avec succès !' });
     } catch (error) {
         console.error("Erreur lors de l'envoi de l'email : ", error);
