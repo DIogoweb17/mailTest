@@ -22,6 +22,14 @@ router.get('/', (req, res) => {
 router.post('/send-email', async (req, res) => {
     const { nom, prenom, email, message } = req.body;
 
+    // Vérification des variables d'environnement
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+        return res.status(500).json({
+            success: false,
+            message: 'Erreur : Variables d\'environnement EMAIL_USER ou EMAIL_PASS non définies.'
+        });
+    }
+
     try {
         const transporter = nodemailer.createTransport({
             service: 'gmail',
@@ -43,8 +51,12 @@ router.post('/send-email', async (req, res) => {
 
         res.status(200).json({ success: true, message: 'Email envoyé avec succès !' });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ success: false, message: "Erreur lors de l'envoi de l'email." });
+        console.error("Erreur lors de l'envoi de l'email : ", error);
+        // Renvoyer une erreur plus spécifique en fonction du type d'erreur
+        res.status(500).json({
+            success: false,
+            message: `Erreur lors de l'envoi de l'email : ${error.message}`
+        });
     }
 });
 
