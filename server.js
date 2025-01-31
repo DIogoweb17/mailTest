@@ -20,6 +20,9 @@ router.get('/', (req, res) => {
 
 // Route pour envoyer un email
 router.post('/send-email', async (req, res) => {
+    // Log pour vérifier les données reçues
+    console.log('Requête reçue avec les données : ', req.body);
+
     const { nom, prenom, email, message } = req.body;
 
     // Vérification des variables d'environnement
@@ -32,7 +35,7 @@ router.post('/send-email', async (req, res) => {
 
     try {
         console.log('Tentative d\'envoi de l\'email...');
-        
+
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
@@ -63,6 +66,7 @@ router.post('/send-email', async (req, res) => {
         });
     }
 });
+
 
 // Utiliser le routeur
 app.use('/api', router);
