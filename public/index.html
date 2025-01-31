@@ -16,30 +16,37 @@
     </form>
 
     <script>
+        // Ajouter un écouteur d'événements pour gérer la soumission du formulaire
         document.getElementById("contact-form").addEventListener("submit", async function(event) {
-            event.preventDefault();
+            event.preventDefault(); // Empêcher la soumission par défaut du formulaire
             
+            // Récupérer les valeurs du formulaire
             const nom = document.getElementById("nom").value;
             const prenom = document.getElementById("prenom").value;
             const email = document.getElementById("email").value;
             const message = document.getElementById("message").value;
 
             try {
+                // Effectuer une requête fetch pour envoyer les données au serveur
                 const response = await fetch("https://mail-test-ten.vercel.app/api/send-email", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ nom, prenom, email, message })
+                    body: JSON.stringify({ nom, prenom, email, message }) // Envoyer les données sous forme de JSON
                 });
 
+                // Vérifier si la réponse est correcte
                 if (!response.ok) {
-                    throw new Error("Erreur lors de l'envoi de l'email.");
+                    // Si la réponse n'est pas OK, générer une erreur
+                    const errorMessage = await response.text();
+                    throw new Error(`Erreur lors de l'envoi de l'email : ${errorMessage}`);
                 }
 
+                // Si la réponse est OK, analyser la réponse JSON et afficher le message
                 const data = await response.json();
-                alert(data.message);
+                alert(data.message); // Afficher le message de succès retourné par le serveur
             } catch (error) {
-                console.error("Erreur :", error);
-                alert("Une erreur s'est produite. Veuillez réessayer plus tard.");
+                console.error("Erreur :", error); // Log l'erreur dans la console pour faciliter le débogage
+                alert(`Une erreur s'est produite. Veuillez réessayer plus tard. (${error.message})`);
             }
         });
     </script>
