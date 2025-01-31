@@ -6,28 +6,23 @@ const bodyParser = require('body-parser');
 const path = require('path');
 
 const app = express();
-
-// Middleware pour servir des fichiers statiques
-app.use(express.static('public'));
+const router = express.Router();
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
+app.use(express.static('public'));
 
 // Route d'accueil
-app.get('/', (req, res) => {
-    res.sendFile(path.resolve('public', 'index.html'));
+router.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Route pour éviter l'erreur 404 de favicon.ico
-app.get('/favicon.ico', (req, res) => res.status(204).end());
-
 // Route pour envoyer un email
-app.post('/send-email', async (req, res) => {
+router.post('/send-email', async (req, res) => {
     const { nom, prenom, email, message } = req.body;
 
     try {
-        // Configurer Nodemailer
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
@@ -36,37 +31,15 @@ app.post('/send-email', async (req, res) => {
             }
         });
 
-        // Email vers toi-même
-        const mailOptionsToYou = {
+        // Envoi de l'email
+        const mailOptions = {
             from: email,
             to: process.env.EMAIL_USER,
             subject: `Nouveau message de ${prenom} ${nom}`,
-            text: `Nom: ${nom}\nPrénom: ${prenom}\nEmail: ${email}\n\nMessage:\n${message}`,
-            attachments: [
-                {
-                    filename: 'guide_gratuit.pdf',
-                    path: path.resolve('public', 'pdfs', 'guide_gratuit.pdf')
-                }
-            ]
+            text: `Nom: ${nom}\nPrénom: ${prenom}\nEmail: ${email}\n\nMessage:\n${message}`
         };
 
-        await transporter.sendMail(mailOptionsToYou);
-
-        // Email de confirmation à l'utilisateur
-        const mailOptionsToUser = {
-            from: process.env.EMAIL_USER,
-            to: email,
-            subject: 'Voici votre guide gratuit',
-            text: `Bonjour ${prenom} ${nom},\n\nMerci d'avoir téléchargé notre guide !\n\nVoici le guide en pièce jointe.\n\nVotre message :\n"${message}"`,
-            attachments: [
-                {
-                    filename: 'guide_gratuit.pdf',
-                    path: path.resolve('public', 'pdfs', 'guide_gratuit.pdf')
-                }
-            ]
-        };
-
-        await transporter.sendMail(mailOptionsToUser);
+        await transporter.sendMail(mailOptions);
 
         res.status(200).json({ success: true, message: 'Email envoyé avec succès !' });
     } catch (error) {
@@ -75,5 +48,8 @@ app.post('/send-email', async (req, res) => {
     }
 });
 
-// Exporter l'application pour Vercel
+// Utiliser le routeur
+app.use('/api', router);
+
+// Exporter Express pour Vercel
 module.exports = app;
